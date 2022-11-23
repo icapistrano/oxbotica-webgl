@@ -1,11 +1,13 @@
 import './style.css';
 
-import { SceneManager } from './components/SceneManager.js';
-import { MapHandler } from './components/MapHandler.js';
-import { Marker } from './components/Marker.js';
-import { Tags } from './components/Tags.js';
+import { SceneManager } from './components/SceneManager';
+import { MapHandler } from './components/MapHandler';
+import { Marker } from './components/Marker';
+import { Tags } from './components/Tags';
 
-async function getData(url) {
+import { CarPosition, LatLng } from './ts/interfaces/data_interfaces';
+
+async function getData(url: string) {
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -20,13 +22,13 @@ const URL = "https://vehicle-api-test.herokuapp.com/api/vehicles";
 
 const loadingDiv = document.getElementById('loading');
 
-const BL = {lat: 51.662187, lng: -1.366425};
-const BR = {lat: 51.662187, lng: -1.148908};
-const TL = {lat: 51.797113, lng: -1.366425};
+const BL: LatLng = { lat: 51.662187, lng: -1.366425 };
+const BR: LatLng= { lat: 51.662187, lng: -1.148908 };
+const TL: LatLng = { lat: 51.797113, lng: -1.366425 };
 const BLTOBR = 150; // 15km
 const BLTOTL = 150; // 15km
 
-let sceneManager;
+let sceneManager: SceneManager;
 
 (async function demo() {
   sceneManager = new SceneManager(BLTOBR, BLTOTL); // args for camera position/lookAt
@@ -36,12 +38,12 @@ let sceneManager;
   sceneManager.scene.add(map);
 
   // get vehicle array and its telemetry
-  const latLng = {};
+  const latLng: CarPosition = {};
   const vehicles = await getData(URL);
   
   for (let vehicle of vehicles) {
     const telemetry = await getData(`${URL}/${vehicle.id}/telemetry`);
-    const key = [telemetry.lat, telemetry.lng];
+    const key = `${telemetry.lat}, ${telemetry.lng}`;
     const vehicleData = {...vehicle, ...telemetry};
 
     if (key in latLng) {
@@ -56,13 +58,12 @@ let sceneManager;
 
   // create markers and tags
   for (let key in latLng) {
-    const [lat, lng] = key.split(',');
 
     const marker = new Marker();
     marker.createText(key); // optional: a marker can exist without text    
 
     // create ul and li for vehicle data per lat, lng
-    const tag = new Tags(lat, lng);
+    const tag = new Tags();
     for (let vehicleIdx in latLng[key]) {
       tag.addLi(latLng[key][vehicleIdx]);
       document.body.appendChild(tag.ul);
@@ -74,7 +75,8 @@ let sceneManager;
 
     // pin: sphere, line, optional text
     sceneManager.scene.add(marker.pin);
-    mapHandler.setMarkerPosition(marker, lat, lng); 
+    const [lat, lng] = key.split(',').map(str => parseFloat(str));
+    mapHandler.setMarkerPosition(marker.pin, lat, lng); 
   }
 
   // show first pin

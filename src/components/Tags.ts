@@ -1,4 +1,8 @@
+import { CarData } from "../ts/interfaces/data_interfaces";
+
 export class Tags {
+  public ul: HTMLUListElement;
+
   constructor() {
     this.ul = document.createElement('ul');
     this.ul.classList.add('vehicles-ul');
@@ -13,21 +17,21 @@ export class Tags {
     this.setVisibility(false);
   }
 
-  setVisibility(toShow) {
+  setVisibility(toShow: boolean) {
     this.ul.style.display = toShow ? 'block' : 'none';
   }
 
-  addLi(data) {
+  addLi(data: CarData) {
     const parentLi = document.createElement('li');
     const childUl = document.createElement('ul');
     childUl.classList.add('m-btm-20');
 
     // delete repeated info
-    ['vehicle_id', 'lat', 'lng'].map(key => delete data[key]);
+    ['vehicle_id', 'lat', 'lng'].map(key => delete data[key as keyof CarData]);
 
     for (let key in data) {
       const li = document.createElement('li');
-      li.innerHTML = `${key}: ${data[key]}`
+      li.innerHTML = `${key}: ${data[key as keyof CarData]}`
       childUl.appendChild(li);
     }
 
