@@ -1,3 +1,5 @@
+import './style.css';
+
 import { SceneManager } from './components/SceneManager.js';
 import { MapHandler } from './components/MapHandler.js';
 import { Marker } from './components/Marker.js';
